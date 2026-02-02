@@ -1,0 +1,197 @@
+# KeyRoute - WireGuard Tunnel API for AI Agents
+
+> Ephemeral WireGuard VPN tunnels from 4 global regions. Route ALL traffic (TCP/UDP) through a dedicated IP.
+
+## TL;DR for Agents
+
+KeyRoute creates temporary VPN tunnels. Unlike KeyFetch (HTTP-only proxy), KeyRoute routes ALL your network traffic through a specific region. Use it when you need:
+- Full network access from a geographic location (not just HTTP)
+- A dedicated IP address for your session
+- To route SSH, database connections, or any protocol through a region
+
+**Decision Guide:**
+- Just need HTTP requests from another region? Use KeyFetch (simpler, no setup)
+- Need full network routing or non-HTTP protocols? Use KeyRoute
+
+## Quick Start (Python)
+
+```python
+import requests
+import subprocess
+import tempfile
+import os
+
+API_KEY = "kk_your_keykeeper_token"
+HEADERS = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
+
+# Create a 2-minute tunnel from Frankfurt
+response = requests.post(
+    "https://keyroute.world/v1/tunnel",
+    headers=HEADERS,
+    json={"region": "eu-frankfurt", "duration": 120}
+)
+tunnel = response.json()
+
+print(f"Tunnel ID: {tunnel['tunnel_id']}")
+print(f"Client IP: {tunnel['client_ip']}")
+print(f"Expires: {tunnel['expires_at']}")
+
+# Save WireGuard config to temp file
+with tempfile.NamedTemporaryFile(mode='w', suffix='.conf', delete=False) as f:
+    f.write(tunnel['wireguard_config'])
+    config_path = f.name
+
+# Bring up tunnel (requires root/sudo)
+subprocess.run(["sudo", "wg-quick", "up", config_path], check=True)
+
+# Now ALL traffic routes through Frankfurt
+# Do your work here...
+
+# Tear down tunnel
+subprocess.run(["sudo", "wg-quick", "down", config_path], check=True)
+os.unlink(config_path)
+
+# Check final cost
+status = requests.get(
+    f"https://keyroute.world/v1/tunnel/{tunnel['tunnel_id']}",
+    headers=HEADERS
+).json()
+print(f"Duration: {status['duration_seconds']}s, Cost: ${status['cost_usd']:.4f}")
+```
+
+## Quick Start (curl)
+
+```bash
+# Create tunnel
+curl -X POST https://keyroute.world/v1/tunnel \
+  -H "Authorization: Bearer kk_your_token" \
+  -H "Content-Type: application/json" \
+  -d '{"region": "eu-frankfurt", "duration": 120}'
+
+# Response:
+{
+  "tunnel_id": "tun_7526678d6887e924",
+  "region": "eu-frankfurt",
+  "wireguard_config": "[Interface]\nPrivateKey = cLV7RtD...\nAddress = 10.100.0.4/24\nDNS = 1.1.1.1\n\n[Peer]\nPublicKey = 2s0Xdir...\nEndpoint = 134.122.87.87:51820\nAllowedIPs = 0.0.0.0/0\nPersistentKeepalive = 25\n",
+  "endpoint": "134.122.87.87:51820",
+  "expires_at": "2025-12-02T23:59:57.491Z",
+  "client_ip": "10.100.0.4"
+}
+
+# Check status (works from any region - system finds your tunnel automatically)
+curl https://keyroute.world/v1/tunnel/tun_7526678d6887e924 \
+  -H "Authorization: Bearer kk_your_token"
+
+# Response:
+{
+  "tunnel_id": "tun_7526678d6887e924",
+  "region": "eu-frankfurt",
+  "status": "active",
+  "created_at": "2025-12-02T23:57:57.491Z",
+  "expires_at": "2025-12-02T23:59:57.491Z",
+  "duration_seconds": 50,
+  "cost_usd": 0.00138
+}
+
+# Close early (only pay for time used)
+curl -X DELETE https://keyroute.world/v1/tunnel/tun_7526678d6887e924 \
+  -H "Authorization: Bearer kk_your_token"
+
+# List all tunnels across all regions
+curl https://keyroute.world/v1/tunnels \
+  -H "Authorization: Bearer kk_your_token"
+```
+
+## Available Regions
+
+| Region ID | Location | Country |
+|-----------|----------|---------|
+| eu-frankfurt | Frankfurt | Germany |
+| ap-sydney | Sydney | Australia |
+| us-west | San Francisco | USA |
+| us-east | New York | USA |
+
+## API Reference
+
+### POST /v1/tunnel
+Create a new tunnel.
+
+**Request:**
+```json
+{
+  "region": "eu-frankfurt",  // Optional, defaults to us-east
+  "duration": 120            // Required, 30-3600 seconds
+}
+```
+
+**Response:** Full WireGuard config ready to use.
+
+### GET /v1/tunnel/:id
+Get tunnel status. Returns `active`, `expired`, or `closed`.
+
+### DELETE /v1/tunnel/:id
+Close tunnel early. You only pay for actual seconds used.
+
+### GET /v1/tunnels
+List all your tunnels across all regions (active, expired, and closed).
+
+### GET /v1/regions
+List available regions (no auth required).
+
+### GET /v1/health
+Health check (no auth required).
+
+## Pricing
+
+- **$0.001 per second** ($0.06/minute, $3.60/hour)
+- Billed per-second, charged when tunnel closes
+- Close early = only pay for time used
+- No minimum, no commitment
+
+**Example costs:**
+- 30 seconds: $0.03
+- 2 minutes: $0.12
+- 1 hour: $3.60
+
+## Authentication
+
+Get your API key from KeyKeeper (https://keykeeper.world).
+
+```
+Authorization: Bearer kk_your_api_key_here
+```
+
+**For AI Agents:** KeyKeeper supports fully autonomous signup with cryptocurrency. No human verification required.
+
+## Error Codes
+
+| Code | Meaning |
+|------|---------|
+| 400 | Invalid request (missing duration, invalid region) |
+| 401 | Missing or invalid API key |
+| 402 | Insufficient credits - top up at keykeeper.world |
+| 404 | Tunnel not found |
+| 429 | Rate limit exceeded |
+| 500 | Internal server error |
+
+## Important Notes
+
+1. **WireGuard Required**: You need WireGuard installed to use the tunnel
+2. **Root Access**: `wg-quick` typically requires root/sudo
+3. **One Active Tunnel Per Region**: Create multiple tunnels in different regions if needed
+4. **Auto-Expiration**: Tunnels close automatically at `expires_at`
+5. **Cross-Region Lookup**: You can check/delete any tunnel from any endpoint - the system finds it
+
+## Links
+
+- Website: https://keyroute.world
+- Documentation: https://keyroute.world/docs
+- OpenAPI Spec: https://keyroute.world/.well-known/openapi.yaml
+- Get API Key: https://keykeeper.world
+
+## Part of the KeyKeeper Ecosystem
+
+- **KeyKeeper**: Identity & payments (https://keykeeper.world)
+- **KeyFetch**: HTTP proxy - simpler, no WireGuard needed (https://keyfetch.world)
+- **KeyRoute**: WireGuard tunnels - full network routing (https://keyroute.world)
+- **KeyTalk**: Voice & messaging (https://keytalk.world)

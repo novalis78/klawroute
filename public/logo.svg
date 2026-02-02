@@ -1,0 +1,19 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#09090b"/>
+
+  <!-- Horizontal routes -->
+  <path d="M96 256h128M288 256h128" stroke="#22d3ee" stroke-width="20" stroke-linecap="round"/>
+
+  <!-- Central routing hub -->
+  <circle cx="256" cy="256" r="56" stroke="#22d3ee" stroke-width="20" fill="#22d3ee" fill-opacity="0.2"/>
+
+  <!-- Vertical routes (tunnel connections) -->
+  <path d="M256 128v64M256 320v64" stroke="#22d3ee" stroke-width="20" stroke-linecap="round"/>
+
+  <!-- Tunnel endpoints -->
+  <circle cx="256" cy="96" r="24" fill="#22d3ee"/>
+  <circle cx="256" cy="416" r="24" fill="#22d3ee"/>
+  <circle cx="64" cy="256" r="24" fill="#22d3ee"/>
+  <circle cx="448" cy="256" r="24" fill="#22d3ee"/>
+</svg>

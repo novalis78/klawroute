@@ -1,0 +1,331 @@
+openapi: 3.1.0
+info:
+  title: KeyRoute API
+  description: |
+    WireGuard tunnel API for AI agents. Create ephemeral VPN tunnels from 4 global regions.
+
+    ## KeyRoute vs KeyFetch - Which Should I Use?
+
+    | Need | Use |
+    |------|-----|
+    | HTTP requests from another region | **KeyFetch** (simpler, no setup) |
+    | Full network routing (all TCP/UDP) | **KeyRoute** |
+    | SSH, database, or non-HTTP protocols | **KeyRoute** |
+    | Dedicated IP for session | **KeyRoute** |
+
+    ## For AI Agents
+    KeyRoute is designed for autonomous agents. Sign up and pay with cryptocurrency through KeyKeeper - no human interaction required.
+
+    ## Authentication
+    All requests require a Bearer token from KeyKeeper (https://keykeeper.world).
+
+    ```
+    Authorization: Bearer kk_your_api_key_here
+    ```
+
+    ## Pricing
+    - **$0.001 per second** ($0.06/min, $3.60/hour)
+    - Billed per-second when tunnel closes
+    - Close early = only pay for time used
+
+    ## Regions
+    | ID | Location | Country |
+    |----|----------|---------|
+    | eu-frankfurt | Frankfurt | Germany |
+    | ap-sydney | Sydney | Australia |
+    | us-west | San Francisco | USA |
+    | us-east | New York | USA |
+
+    ## Quick Example
+
+    ```bash
+    # Create 2-minute tunnel from Frankfurt
+    curl -X POST https://keyroute.world/v1/tunnel \
+      -H "Authorization: Bearer kk_your_token" \
+      -H "Content-Type: application/json" \
+      -d '{"region": "eu-frankfurt", "duration": 120}'
+
+    # Returns WireGuard config - save to file and run:
+    # sudo wg-quick up /path/to/config.conf
+    ```
+
+    ## Rate Limits
+    - 10 tunnels per account (active simultaneously)
+    - 3600 second maximum tunnel duration
+    - 30 second minimum tunnel duration
+
+    ## Error Codes
+    | Code | Meaning |
+    |------|---------|
+    | 400 | Invalid request (missing duration, invalid region) |
+    | 401 | Missing or invalid API key |
+    | 402 | Insufficient credits - top up at keykeeper.world |
+    | 404 | Tunnel not found |
+    | 429 | Rate limit exceeded |
+    | 500 | Internal server error |
+  version: 1.0.0
+  contact:
+    name: KeyKeeper Support
+    url: https://keykeeper.world
+    email: support@keykeeper.world
+  license:
+    name: Proprietary
+    url: https://keykeeper.world/terms
+
+servers:
+  - url: https://keyroute.world
+    description: Production API (routes to selected region)
+
+security:
+  - bearerAuth: []
+
+paths:
+  /v1/tunnel:
+    post:
+      operationId: createTunnel
+      summary: Create a new WireGuard tunnel
+      description: |
+        Creates an ephemeral WireGuard tunnel in the specified region.
+        Returns a complete WireGuard configuration that can be used with any WireGuard client.
+        The tunnel will automatically expire after the specified duration.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - duration
+              properties:
+                region:
+                  type: string
+                  enum: [eu-frankfurt, ap-sydney, us-west, us-east]
+                  description: Region to create tunnel in
+                  default: auto
+                duration:
+                  type: integer
+                  minimum: 30
+                  maximum: 3600
+                  description: Tunnel duration in seconds
+                  example: 300
+      responses:
+        '201':
+          description: Tunnel created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tunnel_id:
+                    type: string
+                    description: Unique tunnel identifier
+                    example: tun_7526678d6887e924
+                  region:
+                    type: string
+                    description: Region where tunnel was created
+                    example: eu-frankfurt
+                  wireguard_config:
+                    type: string
+                    description: Complete WireGuard configuration ready to use
+                    example: "[Interface]\nPrivateKey = cLV7RtD...\nAddress = 10.100.0.4/24\nDNS = 1.1.1.1\n\n[Peer]\nPublicKey = 2s0Xdir...\nEndpoint = 134.122.87.87:51820\nAllowedIPs = 0.0.0.0/0\nPersistentKeepalive = 25\n"
+                  endpoint:
+                    type: string
+                    description: WireGuard server endpoint (IP:port)
+                    example: "134.122.87.87:51820"
+                  client_ip:
+                    type: string
+                    description: Your assigned IP on tunnel subnet
+                    example: "10.100.0.4"
+                  expires_at:
+                    type: string
+                    format: date-time
+                    description: When tunnel will auto-close
+                    example: "2025-12-02T23:59:57.491Z"
+        '400':
+          description: Invalid request parameters
+        '401':
+          description: Missing or invalid authorization
+        '402':
+          description: Insufficient KeyKeeper credits
+        '429':
+          description: Rate limit exceeded
+        '500':
+          description: Internal server error
+
+  /v1/tunnel/{id}:
+    get:
+      operationId: getTunnel
+      summary: Get tunnel status
+      description: Returns the current status and remaining time for a tunnel.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Tunnel ID
+      responses:
+        '200':
+          description: Tunnel status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tunnel_id:
+                    type: string
+                    example: tun_7526678d6887e924
+                  region:
+                    type: string
+                    example: eu-frankfurt
+                  status:
+                    type: string
+                    enum: [active, expired, closed]
+                    example: active
+                  created_at:
+                    type: string
+                    format: date-time
+                    example: "2025-12-02T23:57:57.491Z"
+                  expires_at:
+                    type: string
+                    format: date-time
+                    example: "2025-12-02T23:59:57.491Z"
+                  duration_seconds:
+                    type: integer
+                    description: Seconds the tunnel has been active
+                    example: 50
+                  cost_usd:
+                    type: number
+                    description: Current cost in USD
+                    example: 0.05
+        '404':
+          description: Tunnel not found
+
+    delete:
+      operationId: deleteTunnel
+      summary: Close tunnel early
+      description: |
+        Closes the tunnel before it expires.
+        You will only be charged for the actual time the tunnel was active.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Tunnel ID
+      responses:
+        '200':
+          description: Tunnel closed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tunnel_id:
+                    type: string
+                  status:
+                    type: string
+                    example: closed
+                  duration_seconds:
+                    type: integer
+                    description: Actual seconds used
+                  cost:
+                    type: number
+                    description: Total cost in USD
+        '404':
+          description: Tunnel not found
+
+  /v1/tunnels:
+    get:
+      operationId: listTunnels
+      summary: List all tunnels
+      description: Returns all active tunnels for your account.
+      responses:
+        '200':
+          description: List of tunnels
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tunnels:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tunnel_id:
+                          type: string
+                        region:
+                          type: string
+                        status:
+                          type: string
+                        expires_at:
+                          type: string
+                          format: date-time
+
+  /v1/regions:
+    get:
+      operationId: listRegions
+      summary: List available regions
+      description: Returns all available regions and their status.
+      security: []
+      responses:
+        '200':
+          description: List of regions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  regions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: eu-frankfurt
+                        name:
+                          type: string
+                          example: Frankfurt
+                        country:
+                          type: string
+                          example: Germany
+                        country_code:
+                          type: string
+                          example: DE
+                        status:
+                          type: string
+                          enum: [online, offline, degraded]
+                          example: online
+
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Health check
+      description: Returns server health status.
+      security: []
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  region:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: KeyKeeper API token

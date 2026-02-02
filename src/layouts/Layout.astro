@@ -1,0 +1,112 @@
+---
+import '../styles/global.css'
+
+interface Props {
+  title: string;
+  description?: string;
+  canonical?: string;
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = "WireGuard TCP tunnels from any region. Ephemeral VPN tunnels for AI agents. Route traffic through Frankfurt, Sydney, New York, or San Francisco.",
+  canonical = Astro.url.href,
+  ogImage = "/og-image.png"
+} = Astro.props;
+
+const siteName = "KeyRoute";
+const siteUrl = "https://keyroute.world";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="keywords" content="WireGuard, VPN, TCP tunnel, ephemeral tunnel, AI agents, regional routing, proxy tunnel, Frankfurt tunnel, Sydney tunnel, New York tunnel, San Francisco tunnel, agent infrastructure, KeyKeeper, programmatic VPN" />
+    <meta name="author" content="KeyKeeper" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={`${siteUrl}${ogImage}`} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonical} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={`${siteUrl}${ogImage}`} />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#0a0a0a" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- AI Agent Discovery -->
+    <meta name="ai-agent-service" content="wireguard-tunnel" />
+    <meta name="ai-agent-capabilities" content="vpn-tunnel, geo-routing, tcp-udp-routing, ephemeral-tunnel" />
+    <meta name="ai-agent-auth" content="bearer-token" />
+    <meta name="ai-agent-auth-url" content="https://keykeeper.world/api/register" />
+    <meta name="ai-agent-pricing" content="$0.001/second" />
+    <meta name="ai-agent-openapi" content="https://keyroute.world/.well-known/openapi.yaml" />
+    <meta name="ai-agent-llms-txt" content="https://keyroute.world/.well-known/llms.txt" />
+    <link rel="ai-plugin" href="/.well-known/ai-plugin.json" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "KeyRoute",
+      "description": description,
+      "url": siteUrl,
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.001",
+        "priceCurrency": "USD",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "0.001",
+          "priceCurrency": "USD",
+          "unitText": "per second"
+        }
+      },
+      "provider": {
+        "@type": "Organization",
+        "name": "KeyKeeper",
+        "url": "https://keykeeper.world"
+      },
+      "featureList": [
+        "WireGuard tunnels from 4 global regions",
+        "Ephemeral tunnels (30s to 1 hour)",
+        "Full TCP/UDP routing",
+        "API-first design",
+        "Pay-per-second billing",
+        "AI agent friendly"
+      ]
+    })} />
+  </head>
+  <body class="bg-[var(--color-bg)] min-h-screen">
+    <slot />
+  </body>
+</html>

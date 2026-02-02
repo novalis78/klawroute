@@ -1,0 +1,585 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const sections = [
+  { id: 'overview', title: 'Overview' },
+  { id: 'authentication', title: 'Authentication' },
+  { id: 'creating-tunnels', title: 'Creating Tunnels' },
+  { id: 'wireguard-config', title: 'WireGuard Configuration' },
+  { id: 'managing-tunnels', title: 'Managing Tunnels' },
+  { id: 'regions', title: 'Regions' },
+  { id: 'errors', title: 'Error Handling' },
+  { id: 'best-practices', title: 'Best Practices' },
+];
+
+const regions = [
+  { id: 'eu-frankfurt', name: 'Frankfurt', country: 'Germany', code: 'DE' },
+  { id: 'ap-sydney', name: 'Sydney', country: 'Australia', code: 'AU' },
+  { id: 'us-west', name: 'San Francisco', country: 'USA', code: 'US' },
+  { id: 'us-east', name: 'New York', country: 'USA', code: 'US' },
+];
+
+const errorCodes = [
+  { code: '400', name: 'Bad Request', description: 'Invalid parameters (e.g., duration out of range)' },
+  { code: '401', name: 'Unauthorized', description: 'Missing or invalid Bearer token' },
+  { code: '402', name: 'Payment Required', description: 'Insufficient KeyKeeper credits' },
+  { code: '404', name: 'Not Found', description: 'Tunnel ID does not exist' },
+  { code: '429', name: 'Too Many Requests', description: 'Rate limit exceeded (100 tunnels/minute)' },
+  { code: '500', name: 'Internal Error', description: 'Server error - contact support' },
+  { code: '503', name: 'Service Unavailable', description: 'Region temporarily unavailable' },
+];
+---
+
+<Layout
+  title="KeyRoute Documentation — WireGuard Tunnel API Guide"
+  description="Complete documentation for KeyRoute WireGuard tunnel API. Learn how to create ephemeral tunnels, configure WireGuard, and route traffic from any region."
+>
+  <!-- Background -->
+  <div class="fixed inset-0 -z-10 bg-[#0a0a0a]">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(168,85,247,0.08),transparent)]"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl">
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="flex h-16 items-center justify-between">
+        <a href="/" class="flex items-center gap-2.5 text-white font-medium">
+          <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10">
+            <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          KeyRoute
+        </a>
+
+        <div class="hidden md:flex items-center gap-8">
+          <a href="/" class="text-[13px] text-zinc-400 hover:text-white transition-colors">Home</a>
+          <a href="/api" class="text-[13px] text-zinc-400 hover:text-white transition-colors">API</a>
+          <a href="/docs" class="text-[13px] text-white transition-colors">Docs</a>
+        </div>
+
+        <a href="https://keykeeper.world" target="_blank" class="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-[13px] font-medium text-zinc-900 transition-opacity hover:opacity-90">
+          Get API Key
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-16">
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="flex gap-12">
+        <!-- Sidebar -->
+        <aside class="hidden lg:block w-56 flex-shrink-0">
+          <div class="sticky top-24">
+            <h3 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-4">Documentation</h3>
+            <nav class="space-y-1">
+              {sections.map(section => (
+                <a
+                  href={`#${section.id}`}
+                  class="block py-2 text-sm text-zinc-400 hover:text-white transition-colors"
+                >
+                  {section.title}
+                </a>
+              ))}
+            </nav>
+
+            <div class="mt-8 pt-8 border-t border-white/5">
+              <h3 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-4">Resources</h3>
+              <nav class="space-y-1">
+                <a href="/api" class="block py-2 text-sm text-zinc-400 hover:text-white transition-colors">
+                  API Reference
+                </a>
+                <a href="https://keykeeper.world" target="_blank" class="block py-2 text-sm text-zinc-400 hover:text-white transition-colors">
+                  Get API Key
+                </a>
+                <a href="/.well-known/openapi.yaml" target="_blank" class="block py-2 text-sm text-zinc-400 hover:text-white transition-colors">
+                  OpenAPI Spec
+                </a>
+              </nav>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0">
+          <!-- Header -->
+          <div class="mb-12">
+            <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-400 mb-6">
+              <span class="h-1.5 w-1.5 rounded-full bg-purple-500"></span>
+              Documentation
+            </div>
+            <h1 class="text-4xl font-semibold tracking-tight text-white mb-4">
+              KeyRoute Documentation
+            </h1>
+            <p class="text-lg text-zinc-400">
+              Learn how to create ephemeral WireGuard tunnels and route all your traffic through dedicated IP addresses in 4 global regions.
+            </p>
+          </div>
+
+          <!-- Overview -->
+          <section id="overview" class="mb-16">
+            <h2 class="text-2xl font-semibold text-white mb-6">Overview</h2>
+            <div class="prose prose-invert max-w-none">
+              <!-- KeyRoute vs KeyFetch Decision Box -->
+              <div class="rounded-xl border border-purple-500/20 bg-purple-500/5 p-6 mb-6">
+                <h3 class="text-white font-medium mb-3">KeyRoute vs KeyFetch - Which Should I Use?</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div class="space-y-2">
+                    <div class="text-purple-400 font-medium">Use KeyFetch when:</div>
+                    <ul class="text-zinc-400 space-y-1">
+                      <li>- You only need HTTP/HTTPS requests</li>
+                      <li>- Simpler setup (no WireGuard needed)</li>
+                      <li>- Lower latency for web requests</li>
+                    </ul>
+                    <a href="https://keyfetch.world" class="inline-block text-purple-400 hover:text-purple-300 mt-2">keyfetch.world &rarr;</a>
+                  </div>
+                  <div class="space-y-2">
+                    <div class="text-purple-400 font-medium">Use KeyRoute when:</div>
+                    <ul class="text-zinc-400 space-y-1">
+                      <li>- You need full network routing (all TCP/UDP)</li>
+                      <li>- SSH, databases, or non-HTTP protocols</li>
+                      <li>- You need a dedicated IP for your session</li>
+                    </ul>
+                    <span class="inline-block text-zinc-500 mt-2">You're in the right place!</span>
+                  </div>
+                </div>
+              </div>
+
+              <p class="text-zinc-400 mb-4">
+                KeyRoute provides ephemeral WireGuard VPN tunnels for AI agents and automated systems. Unlike HTTP proxies, KeyRoute gives you a full network tunnel - all TCP and UDP traffic from your application routes through our servers.
+              </p>
+              <p class="text-zinc-400 mb-4">
+                Each tunnel gets a unique IP address on our subnet (10.100.0.0/16) and routes all traffic through the selected region's public IP. Tunnels are ephemeral - they auto-expire after your specified duration, and you only pay for the seconds used.
+              </p>
+
+              <div class="rounded-xl border border-white/5 bg-white/[0.02] p-6 my-6">
+                <h3 class="text-white font-medium mb-3">Key Features</h3>
+                <ul class="space-y-2 text-zinc-400">
+                  <li class="flex items-start gap-2">
+                    <span class="text-purple-400 mt-1">*</span>
+                    <span><strong class="text-white">Full tunnel</strong> - All TCP/UDP traffic routed, not just HTTP</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="text-purple-400 mt-1">*</span>
+                    <span><strong class="text-white">Ephemeral</strong> - Tunnels last 30 seconds to 1 hour</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="text-purple-400 mt-1">*</span>
+                    <span><strong class="text-white">4 regions</strong> - Frankfurt, Sydney, San Francisco, New York</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="text-purple-400 mt-1">*</span>
+                    <span><strong class="text-white">Pay-per-second</strong> - $0.001/second, only pay for usage</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="text-purple-400 mt-1">*</span>
+                    <span><strong class="text-white">WireGuard</strong> - Modern, fast, secure VPN protocol</span>
+                  </li>
+                </ul>
+              </div>
+
+              <p class="text-zinc-400">
+                KeyRoute is perfect for scenarios where you need to route all traffic from a specific geographic location - web scraping, testing geo-restricted services, or accessing region-locked APIs.
+              </p>
+            </div>
+          </section>
+
+          <!-- Authentication -->
+          <section id="authentication" class="mb-16">
+            <h2 class="text-2xl font-semibold text-white mb-6">Authentication</h2>
+            <div class="prose prose-invert max-w-none">
+              <p class="text-zinc-400 mb-4">
+                All API requests require a Bearer token from <a href="https://keykeeper.world" target="_blank" class="text-purple-400 hover:text-purple-300">KeyKeeper</a>. Include your token in the Authorization header:
+              </p>
+
+              <div class="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden mb-6">
+                <div class="px-4 py-3 border-b border-white/5">
+                  <span class="text-sm font-medium text-zinc-300">Authorization Header</span>
+                </div>
+                <div class="p-5">
+                  <pre class="font-mono text-[13px]"><code>Authorization: Bearer YOUR_KEYKEEPER_TOKEN</code></pre>
+                </div>
+              </div>
+
+              <div class="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
+                <div class="flex gap-3">
+                  <svg class="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <div>
+                    <h4 class="text-amber-500 font-medium text-sm">Keep Your Token Secure</h4>
+                    <p class="text-sm text-zinc-400 mt-1">Never expose your API token in client-side code or public repositories. Tunnel costs are billed to your KeyKeeper account.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Creating Tunnels -->
+          <section id="creating-tunnels" class="mb-16">
+            <h2 class="text-2xl font-semibold text-white mb-6">Creating Tunnels</h2>
+            <div class="prose prose-invert max-w-none">
+              <p class="text-zinc-400 mb-4">
+                Create a tunnel by POSTing to <code class="text-purple-400">/v1/tunnel</code> with your desired region and duration:
+              </p>
+
+              <div class="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden mb-6">
+                <div class="flex items-center justify-between px-4 py-3 border-b border-white/5">
+                  <span class="text-sm font-medium text-white">Create a Tunnel</span>
+                  <span class="text-xs text-zinc-500 font-mono">curl</span>
+                </div>
+                <div class="p-5 overflow-x-auto">
+                  <pre class="font-mono text-[13px] leading-relaxed"><code><span class="text-zinc-500"># Create a 5-minute tunnel from Frankfurt</span>
+<span class="text-zinc-300">curl</span> -X POST https://keyroute.world/v1/tunnel \
+  -H <span class="text-purple-400">"Authorization: Bearer YOUR_KEYKEEPER_TOKEN"</span> \
+  -H <span class="text-purple-400">"Content-Type: application/json"</span> \
+  -d <span class="text-violet-400">'&#123;
+    "region": "eu-frankfurt",
+    "duration": 300
+  &#125;'</span></code></pre>
+                </div>
+              </div>
+
+              <h3 class="text-lg font-medium text-white mb-3">Request Parameters</h3>
+              <div class="rounded-xl border border-white/5 bg-white/[0.02] overflow-hidden mb-6">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="text-left text-zinc-500 border-b border-white/5">
+                      <th class="p-4 font-medium">Parameter</th>
+                      <th class="p-4 font-medium">Type</th>
+                      <th class="p-4 font-medium">Required</th>
+                      <th class="p-4 font-medium">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-zinc-400">
+                    <tr class="border-b border-white/5">
+                      <td class="p-4 font-mono text-white">region</td>
+                      <td class="p-4">string</td>
+                      <td class="p-4"><span class="text-zinc-500">No</span></td>
+                      <td class="p-4">Region ID. Default: auto-selects nearest</td>
+                    </tr>
+                    <tr>
+                      <td class="p-4 font-mono text-white">duration</td>
+                      <td class="p-4">number</td>
+                      <td class="p-4"><span class="text-emerald-500">Yes</span></td>
+                      <td class="p-4">Duration in seconds (30-3600)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h3 class="text-lg font-medium text-white mb-3">Response</h3>
+              <div class="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden mb-6">
+                <div class="px-4 py-3 border-b border-white/5">
+                  <span class="text-sm font-medium text-zinc-300">Success Response (200)</span>
+                </div>
+                <div class="p-5 overflow-x-auto">
+                  <pre class="font-mono text-[13px] leading-relaxed"><code>&#123;
+  <span class="text-purple-400">"tunnel_id"</span>: <span class="text-emerald-400">"tun_f4b047e273e16b48"</span>,
+  <span class="text-purple-400">"region"</span>: <span class="text-emerald-400">"eu-frankfurt"</span>,
+  <span class="text-purple-400">"wireguard_config"</span>: <span class="text-emerald-400">"[Interface]\nPrivateKey = ..."</span>,
+  <span class="text-purple-400">"endpoint"</span>: <span class="text-emerald-400">"134.122.87.87:51820"</span>,
+  <span class="text-purple-400">"client_ip"</span>: <span class="text-emerald-400">"10.100.0.2"</span>,
+  <span class="text-purple-400">"expires_at"</span>: <span class="text-emerald-400">"2024-12-01T19:05:00.000Z"</span>
+&#125;</code></pre>
+                </div>
+              </div>
+
+              <div class="rounded-xl border border-white/5 bg-white/[0.02] p-6">
+                <h4 class="text-white font-medium mb-3">Response Fields</h4>
+                <ul class="space-y-2 text-sm text-zinc-400">
+                  <li><code class="text-purple-400">tunnel_id</code> - Unique identifier for managing the tunnel</li>
+                  <li><code class="text-purple-400">region</code> - Region where tunnel was created</li>
+                  <li><code class="text-purple-400">wireguard_config</code> - Complete WireGuard config to save and use</li>
+                  <li><code class="text-purple-400">endpoint</code> - Server address and port for WireGuard</li>
+                  <li><code class="text-purple-400">client_ip</code> - Your assigned IP on the tunnel subnet</li>
+                  <li><code class="text-purple-400">expires_at</code> - When the tunnel will auto-close</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- WireGuard Configuration -->
+          <section id="wireguard-config" class="mb-16">
+            <h2 class="text-2xl font-semibold text-white mb-6">WireGuard Configuration</h2>
+            <div class="prose prose-invert max-w-none">
+              <p class="text-zinc-400 mb-4">
+                The API returns a complete WireGuard configuration. Save it to a file and use it with the WireGuard client:
+              </p>
+
+              <div class="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden mb-6">
+                <div class="flex items-center justify-between px-4 py-3 border-b border-white/5">
+                  <span class="text-sm font-medium text-white">Using the Config (Linux)</span>
+                  <span class="text-xs text-zinc-500 font-mono">bash</span>
+                </div>
+                <div class="p-5 overflow-x-auto">
+                  <pre class="font-mono text-[13px] leading-relaxed"><code><span class="text-zinc-500"># Save the config from API response</span>
+echo "$WIREGUARD_CONFIG" > /etc/wireguard/keyroute.conf
+
+<span class="text-zinc-500"># Bring up the tunnel</span>
+wg-quick up keyroute
+
+<span class="text-zinc-500"># Verify connection</span>
+curl https://api.ipify.org  <span class="text-zinc-500"># Should show tunnel's public IP</span>
+
+<span class="text-zinc-500"># When done, bring down the tunnel</span>
+wg-quick down keyroute</code></pre>
+                </div>
+              </div>
+
+              <h3 class="text-lg font-medium text-white mb-3">Sample WireGuard Config</h3>
+              <div class="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden mb-6">
+                <div class="px-4 py-3 border-b border-white/5">
+                  <span class="text-sm font-medium text-zinc-300">keyroute.conf</span>
+                </div>
+                <div class="p-5 overflow-x-auto">
+                  <pre class="font-mono text-[13px] leading-relaxed"><code>[Interface]
+PrivateKey = &lt;your-generated-private-key&gt;
+Address = 10.100.0.2/32
+DNS = 1.1.1.1
+
+[Peer]
+PublicKey = &lt;server-public-key&gt;
+Endpoint = 134.122.87.87:51820
+AllowedIPs = 0.0.0.0/0
+PersistentKeepalive = 25</code></pre>
+                </div>
+              </div>
+
+              <div class="grid md:grid-cols-2 gap-4 mb-6">
+                <div class="rounded-xl border border-white/5 bg-white/[0.02] p-5">
+                  <h4 class="text-white font-medium mb-2">macOS</h4>
+                  <p class="text-sm text-zinc-400 mb-3">Use the WireGuard app from the App Store or Homebrew:</p>
+                  <code class="text-xs text-zinc-500">brew install wireguard-tools</code>
+                </div>
+                <div class="rounded-xl border border-white/5 bg-white/[0.02] p-5">
+                  <h4 class="text-white font-medium mb-2">Windows</h4>
+                  <p class="text-sm text-zinc-400 mb-3">Download the official WireGuard client:</p>
+                  <code class="text-xs text-zinc-500">wireguard.com/install</code>
+                </div>
+              </div>
+
+              <div class="rounded-xl border border-purple-500/20 bg-purple-500/5 p-4">
+                <div class="flex gap-3">
+                  <svg class="h-5 w-5 text-purple-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <h4 class="text-purple-400 font-medium text-sm">Programmatic Usage</h4>
+                    <p class="text-sm text-zinc-400 mt-1">For automated systems, you can use the wireguard-tools CLI or libraries like <code class="text-purple-400">python-wireguard</code> to configure tunnels programmatically without manual intervention.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Managing Tunnels -->
+          <section id="managing-tunnels" class="mb-16">
+            <h2 class="text-2xl font-semibold text-white mb-6">Managing Tunnels</h2>
+            <div class="prose prose-invert max-w-none">
+
+              <h3 class="text-lg font-medium text-white mb-3">Get Tunnel Status</h3>
+              <p class="text-zinc-400 mb-4">Check the status and time remaining on a tunnel:</p>
+              <div class="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden mb-6">
+                <div class="p-5 overflow-x-auto">
+                  <pre class="font-mono text-[13px] leading-relaxed"><code><span class="text-zinc-300">curl</span> https://keyroute.world/v1/tunnel/tun_f4b047e273e16b48 \
+  -H <span class="text-purple-400">"Authorization: Bearer YOUR_TOKEN"</span></code></pre>
+                </div>
+              </div>
+
+              <h3 class="text-lg font-medium text-white mb-3">Close Tunnel Early</h3>
+              <p class="text-zinc-400 mb-4">Delete a tunnel before it expires. You only pay for the time used:</p>
+              <div class="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden mb-6">
+                <div class="p-5 overflow-x-auto">
+                  <pre class="font-mono text-[13px] leading-relaxed"><code><span class="text-zinc-300">curl</span> -X DELETE https://keyroute.world/v1/tunnel/tun_f4b047e273e16b48 \
+  -H <span class="text-purple-400">"Authorization: Bearer YOUR_TOKEN"</span></code></pre>
+                </div>
+              </div>
+
+              <h3 class="text-lg font-medium text-white mb-3">List All Tunnels</h3>
+              <p class="text-zinc-400 mb-4">Get all active tunnels for your account:</p>
+              <div class="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden mb-6">
+                <div class="p-5 overflow-x-auto">
+                  <pre class="font-mono text-[13px] leading-relaxed"><code><span class="text-zinc-300">curl</span> https://keyroute.world/v1/tunnels \
+  -H <span class="text-purple-400">"Authorization: Bearer YOUR_TOKEN"</span></code></pre>
+                </div>
+              </div>
+
+              <div class="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+                <div class="flex gap-3">
+                  <svg class="h-5 w-5 text-emerald-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <h4 class="text-emerald-400 font-medium text-sm">Pro Tip: Always Clean Up</h4>
+                    <p class="text-sm text-zinc-400 mt-1">Delete tunnels as soon as you're done to minimize costs. If your process crashes, tunnels auto-expire - you won't be charged beyond the expiration time.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Regions -->
+          <section id="regions" class="mb-16">
+            <h2 class="text-2xl font-semibold text-white mb-6">Regions</h2>
+            <div class="prose prose-invert max-w-none">
+              <p class="text-zinc-400 mb-6">
+                KeyRoute operates from 4 global regions. Each region has its own public IP address that your traffic will appear to come from.
+              </p>
+
+              <div class="grid sm:grid-cols-2 gap-4 mb-6">
+                {regions.map(region => (
+                  <div class="rounded-xl border border-white/5 bg-white/[0.02] p-5">
+                    <div class="flex items-center justify-between mb-3">
+                      <div class="flex items-center gap-2">
+                        <span class="h-2 w-2 rounded-full bg-purple-500"></span>
+                        <span class="font-medium text-white">{region.name}</span>
+                      </div>
+                      <span class="text-xs text-zinc-500">{region.country}</span>
+                    </div>
+                    <div class="space-y-1 text-sm">
+                      <div class="flex justify-between">
+                        <span class="text-zinc-500">Region ID</span>
+                        <code class="font-mono text-zinc-400">{region.id}</code>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-zinc-500">Country Code</span>
+                        <span class="text-zinc-400">{region.code}</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-zinc-500">WireGuard Port</span>
+                        <span class="text-zinc-400">51820</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <p class="text-zinc-400">
+                If you don't specify a region, KeyRoute will automatically select the nearest server based on your location. For consistent geo-targeting, always specify the region explicitly.
+              </p>
+            </div>
+          </section>
+
+          <!-- Error Handling -->
+          <section id="errors" class="mb-16">
+            <h2 class="text-2xl font-semibold text-white mb-6">Error Handling</h2>
+            <div class="prose prose-invert max-w-none">
+              <p class="text-zinc-400 mb-6">
+                KeyRoute uses standard HTTP status codes. All errors return a JSON body with an <code class="text-purple-400">error</code> field.
+              </p>
+
+              <div class="rounded-xl border border-white/5 bg-white/[0.02] overflow-hidden mb-6">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="text-left text-zinc-500 border-b border-white/5">
+                      <th class="p-4 font-medium">Code</th>
+                      <th class="p-4 font-medium">Name</th>
+                      <th class="p-4 font-medium">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-zinc-400">
+                    {errorCodes.map((err, i) => (
+                      <tr class={i < errorCodes.length - 1 ? 'border-b border-white/5' : ''}>
+                        <td class="p-4 font-mono text-white">{err.code}</td>
+                        <td class="p-4">{err.name}</td>
+                        <td class="p-4">{err.description}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden">
+                <div class="px-4 py-3 border-b border-white/5">
+                  <span class="text-sm font-medium text-zinc-300">Example Error Response</span>
+                </div>
+                <div class="p-5 overflow-x-auto">
+                  <pre class="font-mono text-[13px] leading-relaxed"><code>&#123;
+  <span class="text-purple-400">"error"</span>: <span class="text-emerald-400">"Duration must be between 30 and 3600 seconds"</span>
+&#125;</code></pre>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Best Practices -->
+          <section id="best-practices" class="mb-16">
+            <h2 class="text-2xl font-semibold text-white mb-6">Best Practices</h2>
+            <div class="prose prose-invert max-w-none">
+              <div class="space-y-4">
+                <div class="rounded-xl border border-white/5 bg-white/[0.02] p-6">
+                  <h3 class="text-white font-medium mb-2">Use Short Durations</h3>
+                  <p class="text-sm text-zinc-400">
+                    Start with the minimum duration you need. You can always create a new tunnel, but you can't extend an existing one. This keeps costs low and ensures fresh connections.
+                  </p>
+                </div>
+
+                <div class="rounded-xl border border-white/5 bg-white/[0.02] p-6">
+                  <h3 class="text-white font-medium mb-2">Clean Up After Use</h3>
+                  <p class="text-sm text-zinc-400">
+                    Always DELETE your tunnel when you're done. Even though tunnels auto-expire, cleaning up immediately saves money and frees resources.
+                  </p>
+                </div>
+
+                <div class="rounded-xl border border-white/5 bg-white/[0.02] p-6">
+                  <h3 class="text-white font-medium mb-2">Handle Errors Gracefully</h3>
+                  <p class="text-sm text-zinc-400">
+                    If tunnel creation fails, retry with exponential backoff. If a region is unavailable (503), try a different region. Your code should handle cases where the tunnel expires unexpectedly.
+                  </p>
+                </div>
+
+                <div class="rounded-xl border border-white/5 bg-white/[0.02] p-6">
+                  <h3 class="text-white font-medium mb-2">Use Specific Regions</h3>
+                  <p class="text-sm text-zinc-400">
+                    If you need traffic from a specific country, always specify the region explicitly rather than relying on auto-selection. This ensures consistent behavior.
+                  </p>
+                </div>
+
+                <div class="rounded-xl border border-white/5 bg-white/[0.02] p-6">
+                  <h3 class="text-white font-medium mb-2">Consider KeyFetch for HTTP-Only</h3>
+                  <p class="text-sm text-zinc-400">
+                    If you only need to make HTTP requests (no other TCP/UDP traffic), consider using <a href="https://keyfetch.world" class="text-purple-400 hover:text-purple-300">KeyFetch</a> instead. It's simpler and doesn't require WireGuard setup.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- CTA -->
+          <section class="rounded-xl border border-white/10 bg-gradient-to-b from-purple-500/5 to-transparent p-8 text-center">
+            <h2 class="text-2xl font-semibold text-white mb-4">Ready to start tunneling?</h2>
+            <p class="text-zinc-400 mb-6">
+              Get your API key from KeyKeeper and create your first tunnel in seconds.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <a href="https://keykeeper.world" target="_blank" class="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-zinc-900 transition-opacity hover:opacity-90">
+                Get API Key
+              </a>
+              <a href="/api" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-medium text-white transition-all hover:bg-white/10">
+                API Reference
+              </a>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 py-12">
+    <div class="mx-auto max-w-5xl px-6">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-2 text-sm text-zinc-600">
+          Part of KeyKeeper
+        </div>
+        <div class="flex items-center gap-6 text-xs text-zinc-600">
+          <a href="/" class="hover:text-zinc-400 transition-colors">Home</a>
+          <a href="/api" class="hover:text-zinc-400 transition-colors">API</a>
+          <a href="/docs" class="hover:text-zinc-400 transition-colors">Docs</a>
+          <a href="https://keykeeper.world" target="_blank" class="hover:text-zinc-400 transition-colors">KeyKeeper</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</Layout>
