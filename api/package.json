@@ -1,7 +1,7 @@
 {
   "name": "keyroute-api",
   "version": "1.0.0",
-  "description": "KeyRoute - WireGuard TCP tunnels from global regions",
+  "description": "KlawRoute - WireGuard TCP tunnels from global regions",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

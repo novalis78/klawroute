@@ -1,10 +1,10 @@
 // Cloudflare Pages Function - Proxy /v1/* requests to regional backends
-// Regional backend servers for KeyRoute
+// Regional backend servers for KlawRoute
 const BACKENDS = {
-  'eu-frankfurt': 'http://fra.keyroute.world:3001',
-  'ap-sydney': 'http://syd.keyroute.world:3001',
-  'us-west': 'http://sfo.keyroute.world:3001',
-  'us-east': 'http://nyc.keyroute.world:3001',
+  'eu-frankfurt': 'http://fra.klawroute.xyz:3001',
+  'ap-sydney': 'http://syd.klawroute.xyz:3001',
+  'us-west': 'http://sfo.klawroute.xyz:3001',
+  'us-east': 'http://nyc.klawroute.xyz:3001',
 };
 
 const BACKEND_LIST = Object.entries(BACKENDS);

@@ -3,13 +3,13 @@ export async function onRequest(context) {
   const spec = {
     openapi: '3.1.0',
     info: {
-      title: 'KeyRoute API',
+      title: 'KlawRoute API',
       description: 'WireGuard VPN tunnels for AI agents. Create encrypted tunnels from multiple global regions for geo-routing and privacy.',
       version: '1.0.0',
-      contact: { name: 'KeyRoute Support', url: 'https://keyroute.world', email: 'support@keyroute.world' },
-      'x-logo': { url: 'https://keyroute.world/logo.png' }
+      contact: { name: 'KlawRoute Support', url: 'https://klawroute.xyz', email: 'support@klawroute.xyz' },
+      'x-logo': { url: 'https://klawroute.xyz/logo.png' }
     },
-    servers: [{ url: 'https://keyroute.world', description: 'Production' }],
+    servers: [{ url: 'https://klawroute.xyz', description: 'Production' }],
     tags: [
       { name: 'Tunnels', description: 'Manage VPN tunnels' },
       { name: 'Regions', description: 'Available tunnel regions' }
@@ -87,7 +87,7 @@ export async function onRequest(context) {
     },
     components: {
       securitySchemes: {
-        bearerAuth: { type: 'http', scheme: 'bearer', description: 'KeyKeeper API token from keykeeper.world' }
+        bearerAuth: { type: 'http', scheme: 'bearer', description: 'KlawKeeper API token from klawkeeper.xyz' }
       },
       schemas: {
         TunnelRequest: {

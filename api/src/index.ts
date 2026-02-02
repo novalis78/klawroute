@@ -15,7 +15,7 @@ const SERVER_PUBLIC_IP = process.env.SERVER_PUBLIC_IP || '127.0.0.1';
 const WG_INTERFACE = process.env.WG_INTERFACE || 'wg0';
 const WG_PORT = parseInt(process.env.WG_PORT || '51820', 10);
 const WG_SUBNET = process.env.WG_SUBNET || '10.100.0';
-const KEYKEEPER_API = process.env.KEYKEEPER_API || 'https://keykeeper.world/api';
+const KEYKEEPER_API = process.env.KEYKEEPER_API || 'https://klawkeeper.xyz/api';
 const SERVICE_SECRET = process.env.SERVICE_SECRET || 'dev-service-secret';
 const USAGE_REPORT_INTERVAL = parseInt(process.env.USAGE_REPORT_INTERVAL || '30000', 10); // 30 seconds
 
@@ -77,7 +77,7 @@ interface UsageRecord {
 const tunnels = new Map<string, Tunnel>();
 let nextClientIP = 2; // Start from .2, .1 is server
 
-// Pending usage records to be reported to KeyKeeper
+// Pending usage records to be reported to KlawKeeper
 const pendingUsage: UsageRecord[] = [];
 
 // Cache for token verification (TTL 60 seconds)
@@ -147,7 +147,7 @@ PersistentKeepalive = 25
 `;
 }
 
-// Verify token against KeyKeeper API
+// Verify token against KlawKeeper API
 async function verifyToken(token: string, operation: string = 'tunnel_hour', quantity: number = 1): Promise<VerifyResponse> {
   if (!token) {
     return { valid: false, error: 'No token provided' };
@@ -186,12 +186,12 @@ async function verifyToken(token: string, operation: string = 'tunnel_hour', qua
 
     return data;
   } catch (error) {
-    console.error('KeyKeeper verification error:', error);
+    console.error('KlawKeeper verification error:', error);
     return { valid: false, error: 'Authentication service unavailable' };
   }
 }
 
-// Report usage to KeyKeeper
+// Report usage to KlawKeeper
 async function reportUsage(): Promise<void> {
   if (pendingUsage.length === 0) {
     return;
@@ -223,7 +223,7 @@ async function reportUsage(): Promise<void> {
       console.log(`Usage reported: ${result.processed} records, ${result.total_credits_deducted} credits deducted`);
     }
   } catch (error) {
-    console.error('Failed to report usage to KeyKeeper:', error);
+    console.error('Failed to report usage to KlawKeeper:', error);
     // Put records back for retry
     pendingUsage.push(...records);
   }
@@ -298,7 +298,7 @@ setInterval(cleanupExpiredTunnels, 10000); // Every 10 seconds
 // Bill active tunnels every minute
 setInterval(billActiveTunnels, 60000); // Every minute
 
-// Report usage to KeyKeeper periodically
+// Report usage to KlawKeeper periodically
 setInterval(reportUsage, USAGE_REPORT_INTERVAL);
 
 const app = new Hono();
@@ -565,13 +565,13 @@ app.get('/v1/tunnels', async (c) => {
 const openapiSpec = {
   openapi: '3.1.0',
   info: {
-    title: 'KeyRoute API',
+    title: 'KlawRoute API',
     description: 'WireGuard VPN tunnels for AI agents. Create encrypted tunnels from multiple global regions for geo-routing and privacy.',
     version: '1.0.0',
-    contact: { name: 'KeyRoute Support', url: 'https://keyroute.world', email: 'support@keyroute.world' },
-    'x-logo': { url: 'https://keyroute.world/logo.png' }
+    contact: { name: 'KlawRoute Support', url: 'https://klawroute.xyz', email: 'support@klawroute.xyz' },
+    'x-logo': { url: 'https://klawroute.xyz/logo.png' }
   },
-  servers: [{ url: 'https://api.keyroute.world', description: 'Production' }],
+  servers: [{ url: 'https://api.klawroute.xyz', description: 'Production' }],
   tags: [
     { name: 'Tunnels', description: 'Manage VPN tunnels' },
     { name: 'Regions', description: 'Available tunnel regions' }
@@ -648,7 +648,7 @@ const openapiSpec = {
   },
   components: {
     securitySchemes: {
-      bearerAuth: { type: 'http', scheme: 'bearer', description: 'KeyKeeper API token from keykeeper.world' }
+      bearerAuth: { type: 'http', scheme: 'bearer', description: 'KlawKeeper API token from klawkeeper.xyz' }
     },
     schemas: {
       TunnelRequest: {
@@ -763,9 +763,9 @@ process.on('SIGINT', async () => {
 });
 
 // Start server
-console.log(`KeyRoute API starting on port ${PORT}`);
+console.log(`KlawRoute API starting on port ${PORT}`);
 console.log(`Region: ${REGION}`);
-console.log(`KeyKeeper API: ${KEYKEEPER_API}`);
+console.log(`KlawKeeper API: ${KEYKEEPER_API}`);
 console.log(`WireGuard interface: ${WG_INTERFACE}`);
 console.log(`WireGuard port: ${WG_PORT}`);
 
