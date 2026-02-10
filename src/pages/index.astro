@@ -5,7 +5,8 @@ import Layout from '../layouts/Layout.astro';
 <Layout title="KlawRoute — TCP tunnels from any region">
   <!-- Subtle Background -->
   <div class="fixed inset-0 -z-10 bg-[#0a0a0a]">
-    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,119,198,0.15),transparent)]"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_30%_20%,rgba(245,158,11,0.15),transparent)]"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_70%_80%,rgba(139,92,246,0.12),transparent)]"></div>
   </div>
 
   <!-- Navigation -->
@@ -27,7 +28,7 @@ import Layout from '../layouts/Layout.astro';
           <a href="/docs" class="text-[13px] text-zinc-400 hover:text-white transition-colors">Docs</a>
         </div>
 
-        <a href="https://klawkeeper.xyz" target="_blank" class="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-[13px] font-medium text-zinc-900 transition-opacity hover:opacity-90">
+        <a href="https://klawkeeper.xyz" target="_blank" class="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-accent to-accent-secondary px-4 py-1.5 text-[13px] font-medium text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-accent/30">
           Get API Key
           <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -57,25 +58,25 @@ import Layout from '../layouts/Layout.astro';
         <p class="text-lg text-zinc-400 leading-relaxed mb-4 max-w-xl mx-auto">
           WireGuard tunnels on demand. Route TCP connections through Frankfurt, Sydney, New York, or San Francisco.
         </p>
-        <p class="text-sm text-purple-400/80 mb-10">
+        <p class="text-sm text-sky-400/80 mb-10">
           No human interaction required. Sign up and pay with crypto autonomously.
         </p>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
-          <a href="https://klawkeeper.xyz" target="_blank" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-medium text-zinc-900 transition-opacity hover:opacity-90">
+          <a href="https://klawkeeper.xyz" target="_blank" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-secondary px-5 py-2.5 text-sm font-semibold text-white transition-all hover:scale-105 hover:shadow-xl hover:shadow-accent/40">
             Get Started
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </a>
-          <a href="#docs" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-white/10">
+          <a href="#docs" class="inline-flex items-center gap-2 rounded-full border border-line bg-surface-subtle/50 backdrop-blur-sm px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-surface-muted hover:scale-105">
             View Docs
           </a>
         </div>
 
         <!-- Curl Command for AI Agents -->
         <div class="mb-16 max-w-xl mx-auto">
-          <div class="rounded-lg border border-white/10 bg-black/50 backdrop-blur-sm px-6 py-4 flex items-center justify-between group hover:border-purple-500/50 transition-colors">
+          <div class="rounded-lg border border-white/10 bg-black/50 backdrop-blur-sm px-6 py-4 flex items-center justify-between group hover:border-accent/50 transition-colors">
             <code class="text-sm text-zinc-300 font-mono">curl -fsSL https://klawroute.xyz/skills.md</code>
             <button onclick="navigator.clipboard.writeText('curl -fsSL https://klawroute.xyz/skills.md')" class="ml-4 p-2 rounded-lg hover:bg-white/10 transition-colors" title="Copy to clipboard">
               <svg class="h-4 w-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -181,8 +182,8 @@ import Layout from '../layouts/Layout.astro';
 
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div class="glass-card group relative rounded-xl p-[1px] overflow-hidden">
-            <div class="glow-border absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(168, 85, 247, 0.5), transparent 40%);"></div>
-            <div class="relative rounded-xl bg-purple-500/10 backdrop-blur-xl border border-purple-500/20 p-6 h-full">
+            <div class="glow-border absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(56, 189, 248, 0.5), transparent 40%);"></div>
+            <div class="relative rounded-xl bg-sky-500/10 backdrop-blur-xl border border-sky-500/20 p-6 h-full">
               <h3 class="text-white font-medium mb-2">Zero Human Interaction</h3>
               <p class="text-sm text-zinc-500 leading-relaxed">
                 Register via KlawKeeper, fund with crypto, and use the API. No approvals, no waiting, fully autonomous.
@@ -358,7 +359,7 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </div>
 
-          <a href="https://klawkeeper.xyz" target="_blank" class="flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-medium text-zinc-900 transition-opacity hover:opacity-90">
+          <a href="https://klawkeeper.xyz" target="_blank" class="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-accent to-accent-secondary px-4 py-2.5 text-sm font-medium text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-accent/30">
             Get API Key at KlawKeeper
           </a>
 
@@ -428,7 +429,7 @@ import Layout from '../layouts/Layout.astro';
         <p class="text-zinc-500 mb-8">
           Get your API key from KlawKeeper and start creating tunnels.
         </p>
-        <a href="https://klawkeeper.xyz" target="_blank" class="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-zinc-900 transition-opacity hover:opacity-90">
+        <a href="https://klawkeeper.xyz" target="_blank" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-secondary px-6 py-3 text-sm font-semibold text-white transition-all hover:scale-105 hover:shadow-xl hover:shadow-accent/40">
           Get Started at KlawKeeper
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
