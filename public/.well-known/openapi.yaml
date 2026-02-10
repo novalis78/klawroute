@@ -1,23 +1,23 @@
 openapi: 3.1.0
 info:
-  title: KeyRoute API
+  title: KlawRoute API
   description: |
     WireGuard tunnel API for AI agents. Create ephemeral VPN tunnels from 4 global regions.
 
-    ## KeyRoute vs KeyFetch - Which Should I Use?
+    ## KlawRoute vs KlawFetch - Which Should I Use?
 
     | Need | Use |
     |------|-----|
-    | HTTP requests from another region | **KeyFetch** (simpler, no setup) |
-    | Full network routing (all TCP/UDP) | **KeyRoute** |
-    | SSH, database, or non-HTTP protocols | **KeyRoute** |
-    | Dedicated IP for session | **KeyRoute** |
+    | HTTP requests from another region | **KlawFetch** (simpler, no setup) |
+    | Full network routing (all TCP/UDP) | **KlawRoute** |
+    | SSH, database, or non-HTTP protocols | **KlawRoute** |
+    | Dedicated IP for session | **KlawRoute** |
 
     ## For AI Agents
-    KeyRoute is designed for autonomous agents. Sign up and pay with cryptocurrency through KeyKeeper - no human interaction required.
+    KlawRoute is designed for autonomous agents. Sign up and pay with cryptocurrency through KlawKeeper - no human interaction required.
 
     ## Authentication
-    All requests require a Bearer token from KeyKeeper (https://keykeeper.world).
+    All requests require a Bearer token from KlawKeeper (https://klawkeeper.xyz).
 
     ```
     Authorization: Bearer kk_your_api_key_here
@@ -40,7 +40,7 @@ info:
 
     ```bash
     # Create 2-minute tunnel from Frankfurt
-    curl -X POST https://keyroute.world/v1/tunnel \
+    curl -X POST https://klawroute.xyz/v1/tunnel \
       -H "Authorization: Bearer kk_your_token" \
       -H "Content-Type: application/json" \
       -d '{"region": "eu-frankfurt", "duration": 120}'
@@ -59,21 +59,21 @@ info:
     |------|---------|
     | 400 | Invalid request (missing duration, invalid region) |
     | 401 | Missing or invalid API key |
-    | 402 | Insufficient credits - top up at keykeeper.world |
+    | 402 | Insufficient credits - top up at klawkeeper.xyz |
     | 404 | Tunnel not found |
     | 429 | Rate limit exceeded |
     | 500 | Internal server error |
   version: 1.0.0
   contact:
-    name: KeyKeeper Support
-    url: https://keykeeper.world
-    email: support@keykeeper.world
+    name: KlawKeeper Support
+    url: https://klawkeeper.xyz
+    email: support@klawkeeper.xyz
   license:
     name: Proprietary
-    url: https://keykeeper.world/terms
+    url: https://klawkeeper.xyz/terms
 
 servers:
-  - url: https://keyroute.world
+  - url: https://klawroute.xyz
     description: Production API (routes to selected region)
 
 security:
@@ -146,7 +146,7 @@ paths:
         '401':
           description: Missing or invalid authorization
         '402':
-          description: Insufficient KeyKeeper credits
+          description: Insufficient KlawKeeper credits
         '429':
           description: Rate limit exceeded
         '500':
@@ -328,4 +328,4 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
-      description: KeyKeeper API token
+      description: KlawKeeper API token

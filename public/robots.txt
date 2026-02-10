@@ -1,13 +1,13 @@
-# KeyRoute - WireGuard Tunnel API for AI Agents
-# https://keyroute.world
+# KlawRoute - WireGuard Tunnel API for AI Agents
+# https://klawroute.xyz
 
 User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://keyroute.world/sitemap.xml
+Sitemap: https://klawroute.xyz/sitemap.xml
 
 # AI Agent Discovery
-# OpenAPI spec: https://keyroute.world/.well-known/openapi.yaml
-# LLM docs: https://keyroute.world/.well-known/llms.txt
-# AI plugin: https://keyroute.world/.well-known/ai-plugin.json
+# OpenAPI spec: https://klawroute.xyz/.well-known/openapi.yaml
+# LLM docs: https://klawroute.xyz/.well-known/llms.txt
+# AI plugin: https://klawroute.xyz/.well-known/ai-plugin.json

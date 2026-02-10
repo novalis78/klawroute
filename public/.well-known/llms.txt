@@ -1,17 +1,17 @@
-# KeyRoute - WireGuard Tunnel API for AI Agents
+# KlawRoute - WireGuard Tunnel API for AI Agents
 
 > Ephemeral WireGuard VPN tunnels from 4 global regions. Route ALL traffic (TCP/UDP) through a dedicated IP.
 
 ## TL;DR for Agents
 
-KeyRoute creates temporary VPN tunnels. Unlike KeyFetch (HTTP-only proxy), KeyRoute routes ALL your network traffic through a specific region. Use it when you need:
+KlawRoute creates temporary VPN tunnels. Unlike KlawFetch (HTTP-only proxy), KlawRoute routes ALL your network traffic through a specific region. Use it when you need:
 - Full network access from a geographic location (not just HTTP)
 - A dedicated IP address for your session
 - To route SSH, database connections, or any protocol through a region
 
 **Decision Guide:**
-- Just need HTTP requests from another region? Use KeyFetch (simpler, no setup)
-- Need full network routing or non-HTTP protocols? Use KeyRoute
+- Just need HTTP requests from another region? Use KlawFetch (simpler, no setup)
+- Need full network routing or non-HTTP protocols? Use KlawRoute
 
 ## Quick Start (Python)
 
@@ -21,12 +21,12 @@ import subprocess
 import tempfile
 import os
 
-API_KEY = "kk_your_keykeeper_token"
+API_KEY = "kk_your_klawkeeper_token"
 HEADERS = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
 
 # Create a 2-minute tunnel from Frankfurt
 response = requests.post(
-    "https://keyroute.world/v1/tunnel",
+    "https://klawroute.xyz/v1/tunnel",
     headers=HEADERS,
     json={"region": "eu-frankfurt", "duration": 120}
 )
@@ -53,7 +53,7 @@ os.unlink(config_path)
 
 # Check final cost
 status = requests.get(
-    f"https://keyroute.world/v1/tunnel/{tunnel['tunnel_id']}",
+    f"https://klawroute.xyz/v1/tunnel/{tunnel['tunnel_id']}",
     headers=HEADERS
 ).json()
 print(f"Duration: {status['duration_seconds']}s, Cost: ${status['cost_usd']:.4f}")
@@ -63,7 +63,7 @@ print(f"Duration: {status['duration_seconds']}s, Cost: ${status['cost_usd']:.4f}
 
 ```bash
 # Create tunnel
-curl -X POST https://keyroute.world/v1/tunnel \
+curl -X POST https://klawroute.xyz/v1/tunnel \
   -H "Authorization: Bearer kk_your_token" \
   -H "Content-Type: application/json" \
   -d '{"region": "eu-frankfurt", "duration": 120}'
@@ -79,7 +79,7 @@ curl -X POST https://keyroute.world/v1/tunnel \
 }
 
 # Check status (works from any region - system finds your tunnel automatically)
-curl https://keyroute.world/v1/tunnel/tun_7526678d6887e924 \
+curl https://klawroute.xyz/v1/tunnel/tun_7526678d6887e924 \
   -H "Authorization: Bearer kk_your_token"
 
 # Response:
@@ -94,11 +94,11 @@ curl https://keyroute.world/v1/tunnel/tun_7526678d6887e924 \
 }
 
 # Close early (only pay for time used)
-curl -X DELETE https://keyroute.world/v1/tunnel/tun_7526678d6887e924 \
+curl -X DELETE https://klawroute.xyz/v1/tunnel/tun_7526678d6887e924 \
   -H "Authorization: Bearer kk_your_token"
 
 # List all tunnels across all regions
-curl https://keyroute.world/v1/tunnels \
+curl https://klawroute.xyz/v1/tunnels \
   -H "Authorization: Bearer kk_your_token"
 ```
 
@@ -155,13 +155,13 @@ Health check (no auth required).
 
 ## Authentication
 
-Get your API key from KeyKeeper (https://keykeeper.world).
+Get your API key from KlawKeeper (https://klawkeeper.xyz).
 
 ```
 Authorization: Bearer kk_your_api_key_here
 ```
 
-**For AI Agents:** KeyKeeper supports fully autonomous signup with cryptocurrency. No human verification required.
+**For AI Agents:** KlawKeeper supports fully autonomous signup with cryptocurrency. No human verification required.
 
 ## Error Codes
 
@@ -169,7 +169,7 @@ Authorization: Bearer kk_your_api_key_here
 |------|---------|
 | 400 | Invalid request (missing duration, invalid region) |
 | 401 | Missing or invalid API key |
-| 402 | Insufficient credits - top up at keykeeper.world |
+| 402 | Insufficient credits - top up at klawkeeper.xyz |
 | 404 | Tunnel not found |
 | 429 | Rate limit exceeded |
 | 500 | Internal server error |
@@ -184,14 +184,14 @@ Authorization: Bearer kk_your_api_key_here
 
 ## Links
 
-- Website: https://keyroute.world
-- Documentation: https://keyroute.world/docs
-- OpenAPI Spec: https://keyroute.world/.well-known/openapi.yaml
-- Get API Key: https://keykeeper.world
+- Website: https://klawroute.xyz
+- Documentation: https://klawroute.xyz/docs
+- OpenAPI Spec: https://klawroute.xyz/.well-known/openapi.yaml
+- Get API Key: https://klawkeeper.xyz
 
-## Part of the KeyKeeper Ecosystem
+## Part of the KlawKeeper Ecosystem
 
-- **KeyKeeper**: Identity & payments (https://keykeeper.world)
-- **KeyFetch**: HTTP proxy - simpler, no WireGuard needed (https://keyfetch.world)
-- **KeyRoute**: WireGuard tunnels - full network routing (https://keyroute.world)
-- **KeyTalk**: Voice & messaging (https://keytalk.world)
+- **KlawKeeper**: Identity & payments (https://klawkeeper.xyz)
+- **KlawFetch**: HTTP proxy - simpler, no WireGuard needed (https://klawfetch.xyz)
+- **KlawRoute**: WireGuard tunnels - full network routing (https://klawroute.xyz)
+- **KlawTalk**: Voice & messaging (https://klawtalk.xyz)

@@ -1,7 +1,7 @@
 {
   "schema_version": "v1",
   "name_for_human": "KlawRoute",
-  "name_for_model": "keyroute",
+  "name_for_model": "klawroute",
   "description_for_human": "Create ephemeral WireGuard VPN tunnels from 4 global regions. Route all TCP/UDP traffic through dedicated IPs.",
   "description_for_model": "KlawRoute is a WireGuard tunnel API designed for AI agents. It creates ephemeral VPN tunnels that route ALL network traffic (TCP and UDP) through servers in 4 regions: Frankfurt (Germany), Sydney (Australia), San Francisco (USA), and New York (USA). Unlike HTTP proxies, KlawRoute provides full network tunnels - useful for accessing geo-restricted services, testing from different locations, or any scenario where you need traffic to appear from a specific region. Tunnels are ephemeral (30 seconds to 1 hour) and cost $0.001/second. Agents can sign up and pay with cryptocurrency through KlawKeeper - no human interaction required. The API returns a complete WireGuard configuration that can be used with standard WireGuard clients.",
   "auth": {
